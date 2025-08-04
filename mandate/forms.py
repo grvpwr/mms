@@ -5,6 +5,12 @@ from .custom_functions import get_office_queryset
 from django.contrib.admin.widgets import AdminDateWidget
 from datetime import date, timedelta
 
+def minDate():
+	return (date.today() - timedelta(days=120)).isoformat()
+
+def maxDate():
+	return (date.today() + timedelta(days=14)).isoformat()
+
 attrs_bs = {
 	'class': 'selectpicker',
 	'data-width':'100%',
@@ -51,8 +57,8 @@ class MandateForm(ModelForm):
 		date_attrs = {
 			'type': 'date',
 			'class': 'form-control',
-			'min': (date.today() - timedelta(days=120)).isoformat(),
-			'max': (date.today() + timedelta(days=14)).isoformat()
+			'min': minDate,
+			'max': maxDate
 		}
 
 		widgets = {
@@ -76,7 +82,6 @@ class MandateForm(ModelForm):
 	def __init__(self, branch, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.fields["office"].queryset = get_office_queryset(branch)
-		print("initiating the MandateForm class")
 
 
 class MandateImageForm(ModelForm):
