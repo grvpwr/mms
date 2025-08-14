@@ -51,7 +51,8 @@ def paginate(request, pagenum):
 		elif status == 'new':
 			mandates = mandates.filter(init_req_flag = True)
 		elif status == 'npci':
-			mandates = mandates.exclude(presentation__npci_upload_time = None).filter(presentation__npci_status = None, presentation__npci_upload_error = None)
+			subquery = Presentation.objects.exclude(npci_upload_time = None).values("id")
+			mandates = mandates.filter(presentation__npci_status = None, presentation__npci_upload_error = None, presentation__id__in=Subquery(subquery))
 		elif status == 'error':
 			mandates = mandates.exclude(presentation__npci_upload_error = None)
 
