@@ -271,18 +271,23 @@ def searchAcc(request):
 
 	try:
 		searchKey = request.GET['account']
-		q_account = Q(credit_account__icontains = searchKey)
-		q_umrn = Q(presentation__npci_umrn__icontains = searchKey)
-		q_debtor_account = Q(debtor_acc_no__icontains = searchKey)
-		q_debtor_name = Q(debtor_name__icontains = searchKey)
-		q_debtor_name_2 = Q(debtor_name_2__icontains = searchKey)
-		q_debtor_name_3 = Q(debtor_name_3__icontains = searchKey)
-		ctx['mandates'] = base_queryset.filter(q_account | q_umrn | q_debtor_account | q_debtor_name | q_debtor_name_2 | q_debtor_name_3)
+		if (len(searchKey) < 4):
+			resultSet = base_queryset.none()
+		else:
+			resultSet = base_queryset.filter(
+				Q(credit_account__istartswith = searchKey) |
+				Q(presentation__npci_umrn__iexact = searchKey) |
+				Q(debtor_acc_no__iexact = searchKey) |
+				Q(debtor_name__icontains = searchKey) |
+				Q(debtor_name_2__icontains = searchKey) |
+				Q(debtor_name_3__icontains = searchKey)
+			)
 		form = SearchAcc(request.GET)
 	except MultiValueDictKeyError:
 		form = SearchAcc()
 
 	ctx['form'] = form
+	ctx['mandates'] = resultSet
 	return render(request, "mandate/search_acc.html", ctx)
 
 

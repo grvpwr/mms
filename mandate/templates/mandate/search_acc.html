@@ -11,11 +11,13 @@
 
 {% block content %}
 <h1>Search Mandate</h1>
-<h5>By Credit Account No.</h5>
-
 
 {% if mandates.count == 0 %}
 <p>No records exist</p>
+{% elif mandates.count == 1 %}
+<p>1 mandate found</p>
+{% else %}
+<p> {{ mandates.count }} mandate found</p>
 {% endif %}
 
 {% if mandates %}
