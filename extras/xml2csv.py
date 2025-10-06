@@ -48,7 +48,7 @@ def xml2dict(f):
         dict['Error'] = root.find('./ns:MndtAccptncRpt/ns:UndrlygAccptncDtls/ns:AccptncRslt/ns:RjctRsn/ns:Prtry', ns).text
     except AttributeError:
         pass
-        
+    
     try:
         dict['MndtReqId'] =  root.find('./ns:MndtAccptncRpt/ns:UndrlygAccptncDtls/ns:OrgnlMndt/ns:OrgnlMndt/ns:MndtReqId', ns).text
     except AttributeError:
