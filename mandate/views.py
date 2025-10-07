@@ -15,6 +15,7 @@ from .custom_functions import *
 from django.utils.datastructures import MultiValueDictKeyError
 from django.contrib.auth.decorators import login_not_required
 from django.views.decorators.csrf import csrf_exempt
+from .crypto import encrypt, decrypt
 
 
 def index(request):
@@ -220,7 +221,7 @@ def mandate_download(request):
 			zip.close()
 			file_zip.seek(0)
 			response = HttpResponse(
-				file_zip,
+				encrypt(file_zip.read()),
 				headers={
 					"Content-Type": "application/zip",
 					"Content-Disposition": 'attachment; filename="' + zip_object.filename + '"',

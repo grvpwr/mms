@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'djangoproject.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mandateportal1",
+        "NAME": "mandateportal",
         "USER": "postgres",
         "PASSWORD": "gaurav",
         "HOST": "localhost",

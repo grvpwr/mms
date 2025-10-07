@@ -26,12 +26,12 @@ def get_resize_factor_jpg(desired, actual, dimensions):
 
 def makeJpg(file):
     img = Image.open(file)
-    original_size = os.path.getsize(file)
-    log_string = str(round(original_size/1000, 2))
+    # original_size = os.path.getsize(file)
+    # log_string = str(round(original_size/1000, 2))
     output = tempfile.TemporaryFile()
     img.convert('L').save(output, format="JPEG",  optimize=True, quality=75)     #first pass
     size = output.tell()    #get the saved file size
-    log_string = log_string + "\t" + str(round(size/1000, 2))
+    # log_string = log_string + "\t" + str(round(size/1000, 2))
     pass_counter = 1
     w, h = img.width, img.height
     
@@ -50,10 +50,10 @@ def makeJpg(file):
         img.convert('L').resize((w, h)).save(output, format='JPEG', optimize=True, quality=65)
 
         size = output.tell()
-        log_string = log_string + "\t" + str(round(size/1000, 2))
+        # log_string = log_string + "\t" + str(round(size/1000, 2))
         pass_counter += 1
     
-    print(log_string)
+    # print(log_string)
     output.seek(0)
     return output
 
@@ -70,12 +70,12 @@ def get_resize_factor_tiff(desired, actual, dimensions):
 
 def makeTif(file):
     img = Image.open(file)
-    original_size = os.path.getsize(file)
-    log_string = str(round(original_size/1000, 2))
+    # original_size = os.path.getsize(file)
+    # log_string = str(round(original_size/1000, 2))
     output = tempfile.TemporaryFile()
     img.convert('1').save(output, format="TIFF",  optimize=True)     #first pass
     size = output.tell()    #get the saved file size
-    log_string = log_string + "\t" + str(round(size/1000, 2))
+    # log_string = log_string + "\t" + str(round(size/1000, 2))
     pass_counter = 1
     
     x = 0
@@ -92,10 +92,10 @@ def makeTif(file):
 
         img.convert('1').resize((w, h)).save(output, format="TIFF",  optimize=True)
         size = output.tell()
-        log_string = log_string + "\t" + str(round(size/1000, 2))
+        # log_string = log_string + "\t" + str(round(size/1000, 2))
         pass_counter += 1
     
-    print(log_string, pass_counter)
+    # print(log_string, pass_counter)
     output.seek(0)
     return output
 
