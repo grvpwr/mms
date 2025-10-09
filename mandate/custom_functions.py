@@ -52,15 +52,6 @@ def process_ack(file):
         print('Not found', file['OriginalMsgId'])
         return
 
-    # print(p.mandate.date == file['Dt'])
-    # print(p.mandate.start_date == file['FrstColltnDt'])
-    # print(p.mandate.end_date == file['FnlColltnDt'])
-    # print(p.mandate.amount == file['Amt'])
-    # print(p.mandate.debtor_name == file['DbtrName'])
-    # print(p.mandate.debtor_acc_no == file['DbtrAcct'])
-    # print(p.mandate.debtor_acc_type == file['DbtrAcctType'])
-    # print(p.mandate.debtor_acc_ifsc == file['DbtrAcctIFSC'])
-
     if p.npci_upload_time:
         print('already updated')
         return
@@ -95,12 +86,8 @@ def process_status(file):
             'save': False
         }
         try:
-            try:
-                p = Presentation.objects.get(npci_umrn = row['UMRN'])
-                message['umrn'] = row['UMRN']
-            except KeyError:
-                messages['umrn'] = 'UMRN key not found in the dict'
-                break
+            p = Presentation.objects.get(npci_umrn = row['UMRN'])
+            message['umrn'] = row['UMRN']
             
             #updating status (active/rejected)
             if p.npci_status == None:
@@ -127,6 +114,9 @@ def process_status(file):
 
         except Presentation.DoesNotExist:
             message['status'] = "UMRN not found in Presentation table"
+        except KeyError:
+            message['umrn'] = 'UMRN key not found in the dict'
+            break
         
         messages.append(message)
     

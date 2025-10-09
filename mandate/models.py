@@ -171,7 +171,7 @@ class Mandate(models.Model):
 				'class': 'primary'
 			}
 		try:
-			return self.presentation_set.latest().get_status()
+			return self.presentation_set.filter(npci_upload_time__isnull=False).latest().get_status()
 		except Presentation.DoesNotExist:
 			return {
 				'short': 'New',
