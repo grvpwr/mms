@@ -1,46 +1,48 @@
-import jpype, os, glob, base64
+import subprocess, shutil, base64, os, glob
 from pathlib import Path
-# from djangoproject.settings import BASE_DIR
 
-def run_jvm():
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    PROJECT_ROOT = os.path.join(BASE_DIR, "crypto_java")
-    THIN_JAR = os.path.join(PROJECT_ROOT, "target", "npci-pkcs-1.0.jar")
-    LIB_DIR = os.path.join(PROJECT_ROOT, "target", "lib")
+def find_java():
+    java = shutil.which("java")
+    if not java:
+        raise RuntimeError("java not found on PATH. Set JAVA_HOME or add java to PATH.")
+    return java
 
-    lib_jars = sorted(glob.glob(os.path.join(LIB_DIR, "*.jar")))
-    classpath_entries = [THIN_JAR] + lib_jars
-    classpath_str = os.pathsep.join(classpath_entries)
+def call_java_for_crypto(mode_argument: str, input_bytes: bytes) -> bytes:
 
-    print((jpype.getDefaultJVMPath(), "-Djava.class.path=" + classpath_str))
+    timeout = 10
+
+    # resolve these paths to dynamic at runtime.
+    main_jar_path = r"/Users/gauravpawar/Dev/pkcs/PKCS Java/target/npci-pkcs.jar"
+    dependencies = r"/Users/gauravpawar/Dev/pkcs/PKCS Java/target/bin"
+
+    jar_paths = glob.glob(os.path.join(dependencies, "*.jar"))
+    jar_paths = [main_jar_path] + jar_paths
+    cp_arg_string = os.pathsep.join(jar_paths)
+
+    java = find_java()
+    cmd = [java, "-cp", cp_arg_string, "GatewayClass", mode_argument]
 
     try:
-        if not jpype.isJVMStarted():
-            jpype.startJVM(jpype.getDefaultJVMPath(), "-Djava.class.path=" + classpath_str)
-            print("JVM is now running", end=" - ")
-            print(jpype.JClass("GatewayClass").test())
-        else:
-            print("JVM already running", end=" - ")
-            print(jpype.JClass("GatewayClass").test())
-    except RuntimeError:
-        print("Some error but lets continue")
+        completed = subprocess.run(
+            cmd,
+            input=input_bytes,               # bytes -> passed to stdin
+            stdout=subprocess.PIPE,          # capture raw stdout bytes
+            stderr=subprocess.PIPE,          # capture stderr for debugging
+            timeout=timeout
+        )
+    except subprocess.TimeoutExpired as e:
+        # process killed by timeout; e.stdout/e.stderr may contain partial data
+        raise RuntimeError(f"java timed out after {timeout}s") from e
 
-def encrypt(data_to_encrypt) -> bytes:
-    if not jpype.isJVMStarted():
-        run_jvm()
-    
-    GatewayClass = jpype.JClass("GatewayClass")
-    jvm_output = GatewayClass.encrypt(data_to_encrypt)
-    return bytes(jvm_output)
+    if completed.returncode != 0:
+        # show stderr (decoded safely) to help debugging
+        stderr_text = completed.stderr.decode("utf-8", errors="replace")
+        raise RuntimeError(f"java exited {completed.returncode}: {stderr_text}")
 
-def decrypt(data_to_decrypt) -> bytes:
-    if not jpype.isJVMStarted():
-        run_jvm()
-    
-    GatewayClass = jpype.JClass("GatewayClass")
-    jvm_output = GatewayClass.decrypt(data_to_decrypt)
-    return bytes(jvm_output)
+    return completed.stdout
 
+
+# Example usage
 if __name__ == "__main__":
-    run_jvm()
-    run_jvm()
+    plaintext = b"hello secret bytes"
+    print(call_java_for_crypto("enc", plaintext))

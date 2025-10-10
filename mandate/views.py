@@ -15,7 +15,7 @@ from .custom_functions import *
 from django.utils.datastructures import MultiValueDictKeyError
 from django.contrib.auth.decorators import login_not_required
 from django.views.decorators.csrf import csrf_exempt
-from .crypto import encrypt, decrypt
+from .crypto import call_java_for_crypto
 
 
 def index(request):
@@ -221,7 +221,7 @@ def mandate_download(request):
 			zip.close()
 			file_zip.seek(0)
 			response = HttpResponse(
-				encrypt(file_zip.read()),
+				call_java_for_crypto("enc", file_zip.read()),
 				headers={
 					"Content-Type": "application/zip",
 					"Content-Disposition": 'attachment; filename="' + zip_object.filename + '"',
@@ -242,7 +242,7 @@ def npciAck(request):
 		if form.is_valid():
 			file = request.FILES['file']
 			encrypted_bytes = file.read()
-			decrypted_file = io.BytesIO(decrypt(encrypted_bytes))
+			decrypted_file = io.BytesIO(call_java_for_crypto("dec", encrypted_bytes))
 
 			ack_files = zip2dict(decrypted_file)
 			status_list = []

@@ -1,9 +1,0 @@
-GatewayClass.class
-decrypt/Main.class
-decrypt/DecryptPgp.class
-encrypt/Main.class
-encrypt/Sign.class
-decrypt/EnvelopeVerifier.class
-encrypt/Encrypt.class
-encrypt/Pfx.class
-decrypt/PfxToPgp.class
