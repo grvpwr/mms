@@ -20,4 +20,27 @@
 
 </form>
 
+{% if status_list %}
+
+<table class="table table-sm text-center">
+    <thead>
+        <tr>
+            <th scope="col">Filename</th>
+            <th scope="col">Found</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for status in status_list %}
+        <tr>
+            <td>{{status.filename}}</td>
+            <td>{{status.found}}</td>
+            <td>{{status.status}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+
 {% endblock %}

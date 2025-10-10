@@ -12,13 +12,18 @@ def run_jvm():
     classpath_entries = [THIN_JAR] + lib_jars
     classpath_str = os.pathsep.join(classpath_entries)
 
-    if not jpype.isJVMStarted():
-        jpype.startJVM("-Djava.class.path=" + classpath_str)
-        print("JVM is now running", end=" - ")
-        print(jpype.JClass("GatewayClass").test())
-    else:
-        print("JVM already running", end=" - ")
-        print(jpype.JClass("GatewayClass").test())
+    print((jpype.getDefaultJVMPath(), "-Djava.class.path=" + classpath_str))
+
+    try:
+        if not jpype.isJVMStarted():
+            jpype.startJVM(jpype.getDefaultJVMPath(), "-Djava.class.path=" + classpath_str)
+            print("JVM is now running", end=" - ")
+            print(jpype.JClass("GatewayClass").test())
+        else:
+            print("JVM already running", end=" - ")
+            print(jpype.JClass("GatewayClass").test())
+    except RuntimeError:
+        print("Some error but lets continue")
 
 def encrypt(data_to_encrypt) -> bytes:
     if not jpype.isJVMStarted():
@@ -35,3 +40,7 @@ def decrypt(data_to_decrypt) -> bytes:
     GatewayClass = jpype.JClass("GatewayClass")
     jvm_output = GatewayClass.decrypt(data_to_decrypt)
     return bytes(jvm_output)
+
+if __name__ == "__main__":
+    run_jvm()
+    run_jvm()

@@ -235,18 +235,28 @@ def mandate_download(request):
 
 
 def npciAck(request):
+	ctx = {}
 	if request.method == "POST":
 		print('inside request.POST')
 		form = NpciAckForm(request.POST, request.FILES)
 		if form.is_valid():
 			file = request.FILES['file']
-			ack_files = zip2dict(file)
+			encrypted_bytes = file.read()
+			decrypted_file = io.BytesIO(decrypt(encrypted_bytes))
+
+			ack_files = zip2dict(decrypted_file)
+			status_list = []
 			for f in ack_files:
-				process_ack(f)
+				# file.name is used as fallback mechanism to get presentation
+				status_dict = process_ack(f, file.name)
+				status_list.append(status_dict)
+			ctx['status_list'] = status_list
 		
 	else:
 		form = NpciAckForm()
-	return render(request, "mandate/npci_ack.html", {"form": form})
+	
+	ctx['form'] = form
+	return render(request, "mandate/npci_ack.html", ctx)
 
 
 def npciStatus(request):

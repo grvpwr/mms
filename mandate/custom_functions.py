@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from .models import *
-import csv, io
+import csv, io, re
 
 def to_midnight(d):
     return datetime(d.year, d.month, d.day)
@@ -44,17 +44,43 @@ def presentation_object_factory(npci_username):
 
     return presentation_obj
 
-def process_ack(file):
-    print('Processing NPCI ACK File inside function', file['filename'])
+def get_presentation_from_filenames(xml_dict, zip_file_name):
+    zip_file_date = datetime.strptime(zip_file_name.split("-")[4], r"%d%m%Y").date()
+    zip_file_seq = int(zip_file_name.split("-")[5])
+
+    xml_file_name = xml_dict['filename']
+    xml_file_date = datetime.strptime(xml_file_name.split("-")[4], r"%d%m%Y").date()
+    xml_file_seq = int(xml_file_name.split("-")[5])
+
+    zip_obj = Zip.objects.get(date = zip_file_date, seq_no = zip_file_seq)
+    presentation_obj = Presentation.objects.get(zip = zip_obj, date = xml_file_date, seq_no = xml_file_seq)
+
+    return presentation_obj
+
+
+def process_ack(file, zip_filename):
+    status_dict = {
+        'filename': None,
+        'found': False,
+        'status': None
+    }
+    status_dict['filename'] = file['filename']
     try:
         p = Presentation.objects.get(npci_MsgId = file['OriginalMsgId'])
+    except KeyError:
+        try:
+            p = get_presentation_from_filenames(file, zip_filename)
+        except (Presentation.DoesNotExist, Zip.DoesNotExist):
+            return status_dict
     except Presentation.DoesNotExist:
-        print('Not found', file['OriginalMsgId'])
-        return
+        return status_dict
+    
+    status_dict['found']: True
 
     if p.npci_upload_time:
         print('already updated')
-        return
+        status_dict['status'] = "Status Already Updated"
+        return status_dict
     
     p.npci_upload_time = file['AcqCreDtTm']
     
@@ -64,14 +90,16 @@ def process_ack(file):
 
     if file['Accptd'] == 'true':
         p.npci_umrn = file['UMRN']
-        print('UMRN updated', file['UMRN'])
+        status_dict['status'] = 'UMRN: ' + file['UMRN']
     elif file['Accptd'] == 'false':
         p.npci_upload_error = file['Error']
-        print('Error updated', file['Error'])
+        status_dict['status'] = 'Error: ' + file['Error']
     else:
-        print('Accpd other than true/false')
+        status_dict['status'] = 'Error.'
     p.save()
-    print('Presentation object saved.')
+    
+    return status_dict
+
 
 def process_status(file):
     filerow = io.StringIO(file.read().decode('utf-8'))
