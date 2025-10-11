@@ -11,9 +11,10 @@ def call_java_for_crypto(mode_argument: str, input_bytes: bytes) -> bytes:
 
     timeout = 10
 
-    # resolve these paths to dynamic at runtime.
-    main_jar_path = r"/Users/gauravpawar/Dev/pkcs/PKCS Java/target/npci-pkcs.jar"
-    dependencies = r"/Users/gauravpawar/Dev/pkcs/PKCS Java/target/bin"
+    app_root_path = Path(__file__).resolve().parent.joinpath("crypto_java")
+
+    main_jar_path = str(app_root_path.joinpath("npci-pkcs.jar"))
+    dependencies = str(app_root_path.joinpath("bin"))
 
     jar_paths = glob.glob(os.path.join(dependencies, "*.jar"))
     jar_paths = [main_jar_path] + jar_paths
