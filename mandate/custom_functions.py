@@ -75,7 +75,7 @@ def process_ack(file, zip_filename):
     except Presentation.DoesNotExist:
         return status_dict
     
-    status_dict['found']: True
+    status_dict['found'] = True
 
     if p.npci_upload_time:
         print('already updated')

@@ -292,7 +292,7 @@ def searchAcc(request):
 				Q(debtor_name__icontains = searchKey) |
 				Q(debtor_name_2__icontains = searchKey) |
 				Q(debtor_name_3__icontains = searchKey)
-			)
+			).distinct()
 		form = SearchAcc(request.GET)
 	except MultiValueDictKeyError:
 		form = SearchAcc()
