@@ -360,8 +360,6 @@ def sop(request):
 	return render(request, "mandate/sop.html")
 
 
-# The next 2 view functions implement the cancellation of active mandates
-
 def cancelRequest(request, id):
 	try:
 		pres = Presentation.objects.get(id=id)

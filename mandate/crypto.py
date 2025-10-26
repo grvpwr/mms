@@ -4,7 +4,7 @@ from pathlib import Path
 def find_java():
     java = shutil.which("java")
     if not java:
-        raise RuntimeError("java not found on PATH. Set JAVA_HOME or add java to PATH.")
+        raise RuntimeError("java not found on path")
     return java
 
 def call_java_for_crypto(mode_argument: str, input_bytes: bytes) -> bytes:
@@ -43,7 +43,6 @@ def call_java_for_crypto(mode_argument: str, input_bytes: bytes) -> bytes:
     return completed.stdout
 
 
-# Example usage
 if __name__ == "__main__":
     plaintext = b"hello secret bytes"
     print(call_java_for_crypto("enc", plaintext))
