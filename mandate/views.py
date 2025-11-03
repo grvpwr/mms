@@ -229,7 +229,7 @@ def mandate_download(request):
 			)
 			return response
 
-	mandates = Mandate.objects.filter(is_deleted = False).filter(init_req_flag = True).order_by('id')
+	mandates = Mandate.objects.filter(is_deleted = False, init_req_flag = True, start_date__lte = date.today()).order_by('id')
 	context = {"mandates": mandates}
 	return render(request, "mandate/mandate_download.html", context)
 
