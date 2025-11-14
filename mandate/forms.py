@@ -106,7 +106,7 @@ class MandateForm(ModelForm):
     def clean_debtor_acc_ifsc(self):
         ifsc = self.cleaned_data["debtor_acc_ifsc"]
         ifsc = ifsc.upper()
-        ifsc_regex = "^[A-Z]{4}0[A-Z0-9]{6}$"
+        ifsc_regex = r"^[A-Z]{4}0[A-Z0-9]{6}$"
         
         if not re.match(ifsc_regex, ifsc):
             raise ValidationError("Invalid IFSC: " + ifsc)
@@ -119,7 +119,7 @@ class MandateForm(ModelForm):
     def clean_credit_account(self):
         acc = self.cleaned_data["credit_account"]
         acc = acc.upper()
-        acc_regex = "^\d{4}\w{10}$"
+        acc_regex = r"^\d{4}\w{10}$"
 
         if not re.match(acc_regex, acc):
             raise ValidationError("Invalid credit account. Please enter the correct loan account number.")
